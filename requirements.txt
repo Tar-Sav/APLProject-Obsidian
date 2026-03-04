@@ -1,0 +1,5 @@
+# The following dependency is required to correctly run this program.
+#install the dependency, use:
+# pip install -r requirements.txt
+
+ply>=3.11
