@@ -25,7 +25,11 @@ tokens = ('INT',
           'THEN',
           'WHILE',
           'DO',
-          'FOR'
+          'FOR',
+          'NOT_EQUAL',
+          'GREATER_EQUAL',
+          'LESS_EQUAL',
+          'SEMICOLON'
           )
 t_PLUS = r'\+'
 t_MINUS = r'-'
@@ -39,6 +43,10 @@ t_EQUAL_SIGN = r'='
 t_EQUALS = r'\=='
 t_GREATER_THAN = r'>'
 t_LESS_THAN = r'<'
+t_NOT_EQUAL = r'!='
+t_GREATER_EQUAL = r'>='
+t_LESS_EQUAL = r'<='
+t_SEMICOLON = r';'
 
 reserved = {'if':'IF',
             'then':'THEN',
