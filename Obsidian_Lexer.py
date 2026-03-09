@@ -1,11 +1,11 @@
 import ply.lex as lex
+import Error
 
 #List of toke names
 tokens = ('INT',
           'FLOAT',
           'STRING',
           'CHAR',
-          'BOOLEAN',
           'PLUS',
           'MINUS',
           'MULTIPLY',
@@ -15,17 +15,19 @@ tokens = ('INT',
           'LBRACE',
           'RBRACE',
           'EQUAL_SIGN',
-          'IDENTIFIER',
+          'ID',
           'EQUALS',
           'GREATER_THAN',
           'LESS_THAN',
-          'DATA_TYPE',
           'IF',
           'ELSE',
           'THEN',
-          'WHILE',
-          'DO',
-          'FOR'
+          'TRY',
+          'CATCH',
+          'LET',
+          'AND',
+          'OR',
+          'DO'
           )
 t_PLUS = r'\+'
 t_MINUS = r'-'
@@ -40,37 +42,44 @@ t_EQUALS = r'\=='
 t_GREATER_THAN = r'>'
 t_LESS_THAN = r'<'
 
+
 reserved = {'if':'IF',
             'then':'THEN',
             'else':'ELSE',
-            'while':'WHILE',
-            'for':'FOR',
-            'int':'DATA_TYPE',
-            'float':'DATA_TYPE',
-            'char':'DATA_TYPE',
-            'bool':'DATA_TYPE',
-            'string':'DATA_TYPE',
+            'try':'TRY',
+            'catch':'CATCH',
+            'let':'LET',
+            'display':'DISPLAY',
+            'and' : 'AND',
+            'or' : 'OR',
+            'do': 'DO'
             }
+
+
+def t_STRING(t):
+    r'\"(.*?)\"'
+    t.value = t.value[1:-1]
+    return t
+
+def t_CHAR(t):
+    r'\'.\''
+    t.value = t.value[1:-1]
+    return t
+
+def t_FLOAT(t):
+    r'\d+\.\d+'
+    t.value = float(t.value)
+    return t
 
 def t_INT(t):
     r'\d+'
     t.value = int(t.value)
     return t
 
-def t_FLOAT(t):
-    r'\d+'
-    t.value = float(t.value)
-    return t
-def t_STRING(t):
-    r'\"(.*?)\"'
-    t.value = t.value
-    return t
-
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
 
-t_ignore  = ' \t'
 
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -78,20 +87,17 @@ def t_ID(t):
     if keyword_type:
         t.type = keyword_type
     else:
-        t.type = 'IDENTIFIER'
+        t.type = 'ID'
     return t
 
+def t_COMMENT(t):
+    r'--(.*?)\n'
+    pass
+
+t_ignore  = ' \t'
+
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    Error.IllegalToken(t.value)
     t.lexer.skip(1)
 
 lexer = lex.lex()
-data = r'while(x > 9){}'
-
-lexer.input(data)
-
-while True:
-    tok = lexer.token()
-    if not tok:
-        break
-    print(tok.type, tok.value)
