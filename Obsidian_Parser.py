@@ -20,6 +20,12 @@ class stringNode:
     def __repr__(self):
         return f'String ("{self.value}")'
 
+class charNode:
+    def __init__(self, value):
+        self.value = value
+    def __repr__(self):
+        return f"Char('{self.value}')"
+
 class booleanNode:
     def __init__(self,value):
         self.value = value
@@ -75,6 +81,21 @@ class whileNode:
     def __repr__(self):
         return f'While({self.condition} Do({self.body}))'
 
+class forNode:
+    def __init__(self, init, condition, update, body):
+        self.init      = init
+        self.condition = condition
+        self.update    = update
+        self.body      = body
+    def __repr__(self):
+        return f'For({self.init}; {self.condition}; {self.update}) Do({self.body})'
+
+class printNode:
+    def __init__(self, value):
+        self.value = value
+    def __repr__(self):
+        return f'Print({self.value})'
+
 #Everything inside curly braces
 class blockNode:
     def __init__(self, statements):
@@ -127,17 +148,55 @@ def p_statementAssign(p):
     '''statement : IDENTIFIER EQUAL_SIGN expression SEMICOLON'''
     p[0] = assignNode(p[1], p[3])
 
-def p_statementIf(p):                
-    '''statement : IF LPAREN expression RPAREN block 
-                 | IF LPAREN expression RPAREN block ELSE block'''
+def p_statementIf(p):
+    '''statement : IF LPAREN expression RPAREN block
+                 | IF LPAREN expression RPAREN block ELSE block
+                 | IF LPAREN expression RPAREN THEN block
+                 | IF LPAREN expression RPAREN THEN block ELSE block'''
     if len(p) == 6:
+        # IF ( expr ) block
         p[0] = ifNode(p[3], p[5])
-    else:
+    elif len(p) == 7:
+        # IF ( expr ) THEN block
+        p[0] = ifNode(p[3], p[6])
+    elif p[6] == 'else':
+        # IF ( expr ) block ELSE block
         p[0] = ifNode(p[3], p[5], p[7])
+    else:
+        # IF ( expr ) THEN block ELSE block
+        p[0] = ifNode(p[3], p[6], p[8])
 
 def p_statementWhile(p):
     '''statement : WHILE LPAREN expression RPAREN block'''
     p[0] = whileNode(p[3], p[5])
+
+def p_statementFor(p):
+    '''statement : FOR LPAREN for_init SEMICOLON expression SEMICOLON for_update RPAREN block'''
+    p[0] = forNode(p[3], p[5], p[7], p[9])
+
+def p_for_init_decl(p):
+    '''for_init : DATA_TYPE IDENTIFIER EQUAL_SIGN expression'''
+    p[0] = varDeclNode(p[1], p[2], p[4])
+
+def p_for_init_assign(p):
+    '''for_init : IDENTIFIER EQUAL_SIGN expression'''
+    p[0] = assignNode(p[1], p[3])
+
+def p_for_init_empty(p):
+    '''for_init : '''
+    p[0] = None
+
+def p_for_update(p):
+    '''for_update : IDENTIFIER EQUAL_SIGN expression'''
+    p[0] = assignNode(p[1], p[3])
+
+def p_for_update_empty(p):
+    '''for_update : '''
+    p[0] = None
+
+def p_statementPrint(p):
+    '''statement : PRINT LPAREN expression RPAREN SEMICOLON'''
+    p[0] = printNode(p[3])
 
 def p_statementExpr(p):
     '''statement : expression SEMICOLON'''
@@ -188,6 +247,10 @@ def p_expBoolean(p):
     '''expression : BOOLEAN'''
     p[0] = booleanNode(p[1] == 'true')
 
+def p_expChar(p):
+    '''expression : CHAR'''
+    p[0] = charNode(p[1])
+
 def p_expIdentifier(p):
     '''expression : IDENTIFIER'''
     p[0] = identifierNode(p[1])
@@ -199,7 +262,13 @@ def p_error(p):
     else:
         raise SyntaxError("Unexpected end of input")
     
-parser = yacc.yacc()
+class _NullLogger:
+    def warning(self, *args, **kwargs): pass
+    def error(self,   *args, **kwargs): pass
+    def info(self,    *args, **kwargs): pass
+    def debug(self,   *args, **kwargs): pass
+
+parser = yacc.yacc(debug=False, write_tables=False, errorlog=_NullLogger())
 
 class parseError(Error):
     def __init__(self, detail):

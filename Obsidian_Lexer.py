@@ -24,8 +24,8 @@ tokens = ('INT',
           'ELSE',
           'THEN',
           'WHILE',
-          'DO',
           'FOR',
+          'PRINT',
           'NOT_EQUAL',
           'GREATER_EQUAL',
           'LESS_EQUAL',
@@ -53,25 +53,34 @@ reserved = {'if':'IF',
             'else':'ELSE',
             'while':'WHILE',
             'for':'FOR',
+            'print':'PRINT',
             'int':'DATA_TYPE',
             'float':'DATA_TYPE',
             'char':'DATA_TYPE',
             'bool':'DATA_TYPE',
             'string':'DATA_TYPE',
+            'true':'BOOLEAN',
+            'false':'BOOLEAN',
             }
+
+def t_FLOAT(t):
+    r'\d+\.\d+'
+    t.value = float(t.value)
+    return t
 
 def t_INT(t):
     r'\d+'
     t.value = int(t.value)
     return t
 
-def t_FLOAT(t):
-    r'\d+'
-    t.value = float(t.value)
-    return t
 def t_STRING(t):
     r'\"(.*?)\"'
     t.value = t.value
+    return t
+
+def t_CHAR(t):
+    r"'(\\.|[^'\\])'"
+    t.value = t.value[1]  # strip surrounding quotes
     return t
 
 def t_newline(t):
@@ -93,13 +102,10 @@ def t_error(t):
     print("Illegal character '%s'" % t.value[0])
     t.lexer.skip(1)
 
-lexer = lex.lex()
-data = r'while(x > 9){}'
+class _NullLogger:
+    def warning(self, *args, **kwargs): pass
+    def error(self,   *args, **kwargs): pass
+    def info(self,    *args, **kwargs): pass
+    def debug(self,   *args, **kwargs): pass
 
-lexer.input(data)
-
-while True:
-    tok = lexer.token()
-    if not tok:
-        break
-    print(tok.type, tok.value)
+lexer = lex.lex(errorlog=_NullLogger())

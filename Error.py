@@ -10,3 +10,11 @@ class Error:
 class IllegalToken(Error):
     def __init__(self, details):
         super().__init__("Illegal Token", details)
+
+class SemanticError(Error):
+    def __init__(self, detail):
+        super().__init__("Semantic Error", detail)
+
+class RuntimeErr(Error):
+    def __init__(self, detail):
+        super().__init__("Runtime Error", detail)
