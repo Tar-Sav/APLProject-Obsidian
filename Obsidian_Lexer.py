@@ -99,7 +99,9 @@ def t_ID(t):
     return t
 
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    if not hasattr(t.lexer, 'lex_errors'):
+        t.lexer.lex_errors = []
+    t.lexer.lex_errors.append(f"Illegal character '{t.value[0]}' at line {t.lexer.lineno}")
     t.lexer.skip(1)
 
 class _NullLogger:

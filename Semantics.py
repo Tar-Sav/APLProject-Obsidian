@@ -1,5 +1,6 @@
 from SymbolTable import SymbolTable
 from Error import SemanticError
+import Obsidian_Parser as _P
 
 
 class SemanticAnalyzer:
@@ -22,6 +23,40 @@ class SemanticAnalyzer:
 
     def _visit_generic(self, node):
         pass
+
+    # ── type inference ────────────────────────────────────────────────────────
+
+    def _type_of(self, node):
+        if isinstance(node, _P.numberNode):
+            return 'float' if isinstance(node.value, float) else 'int'
+        if isinstance(node, _P.stringNode):
+            return 'string'
+        if isinstance(node, _P.booleanNode):
+            return 'bool'
+        if isinstance(node, _P.charNode):
+            return 'char'
+        if isinstance(node, _P.identifierNode):
+            return self.current_scope.lookup(node.name)  # dtype string or None
+        if isinstance(node, _P.binaryOpNode):
+            if node.op in ('==', '!=', '>', '<', '>=', '<='):
+                return 'bool'
+            lt = self._type_of(node.left)
+            rt = self._type_of(node.right)
+            if 'float' in (lt, rt):
+                return 'float'
+            return lt
+        if isinstance(node, _P.unaryOpNode):
+            return self._type_of(node.operand)
+        return None  # can't determine
+
+    def _compatible(self, declared, expr_type):
+        if expr_type is None:
+            return True  # unknown — skip check
+        if declared == expr_type:
+            return True
+        if declared == 'float' and expr_type == 'int':
+            return True  # int literal is fine for float var
+        return False
 
     # ── structural ────────────────────────────────────────────────────────────
 
@@ -46,11 +81,23 @@ class SemanticAnalyzer:
             self.current_scope.define(node.name, node.dtype)
         if node.value is not None:
             self._visit(node.value)
+            expr_type = self._type_of(node.value)
+            if not self._compatible(node.dtype, expr_type):
+                self._error(
+                    f"Type mismatch: cannot assign '{expr_type}' to '{node.dtype}' variable '{node.name}'"
+                )
 
     def _visit_assignNode(self, node):
-        if self.current_scope.lookup(node.name) is None:
+        declared = self.current_scope.lookup(node.name)
+        if declared is None:
             self._error(f"Variable '{node.name}' used before declaration")
         self._visit(node.value)
+        if declared is not None:
+            expr_type = self._type_of(node.value)
+            if not self._compatible(declared, expr_type):
+                self._error(
+                    f"Type mismatch: cannot assign '{expr_type}' to '{declared}' variable '{node.name}'"
+                )
 
     def _visit_ifNode(self, node):
         self._visit(node.condition)

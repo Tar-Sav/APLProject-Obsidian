@@ -275,8 +275,12 @@ class parseError(Error):
         super().__init__("Parse Error", detail)
 
 def run(text):
+    from Obsidian_Lexer import lexer
+    lexer.lex_errors = []
     try:
-        ast = parser.parse(text)
+        ast = parser.parse(text, lexer=lexer)
+        if lexer.lex_errors:
+            return None, parseError("; ".join(lexer.lex_errors))
         return ast, None
     except SyntaxError as e:
         return None, parseError(str(e))
