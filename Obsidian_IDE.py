@@ -80,6 +80,14 @@ SYNTAX = {                          # token: (pattern, neon-dark, warm-light)
     "operator": (r'==|!=|>=|<=|[+\-*/=><]',            "#BF5FFF", "#6366F1"),
 }
 
+# ── Font constants ────────────────────────────────────────────────────────────
+FONT_CODE   = ("Consolas", 12)          # editor text, output panel
+FONT_CODE_S = ("Consolas", 10)          # smaller code / monospace areas
+FONT_HDR    = ("Segoe UI", 11, "bold")  # panel/window headers
+FONT_UI_B   = ("Segoe UI", 10, "bold")  # toolbar buttons, action buttons
+FONT_UI     = ("Segoe UI", 10)          # general UI labels
+FONT_UI_S   = ("Segoe UI", 9)           # status bar, hints, small labels
+
 REFERENCE = """\
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   OBSIDIAN  —  Syntax Guide
@@ -163,12 +171,12 @@ class Editor(tk.Frame):
         self._build()
 
     def _build(self):
-        self.lines = tk.Text(self, width=4, font=("Courier New", 12),
+        self.lines = tk.Text(self, width=4, font=FONT_CODE,
                              state="disabled", relief="flat", bd=0, padx=8, pady=6)
         self.lines.pack(side="left", fill="y")
         self.sep = tk.Frame(self, width=1)
         self.sep.pack(side="left", fill="y")
-        self.text = tk.Text(self, font=("Courier New", 12), relief="flat",
+        self.text = tk.Text(self, font=FONT_CODE, relief="flat",
                             bd=0, undo=True, padx=14, pady=6, wrap="none")
         self.text.pack(side="left", fill="both", expand=True)
         vsb = tk.Scrollbar(self, orient="vertical", command=self.text.yview)
@@ -329,19 +337,19 @@ def toggle_help():
     root.update_idletasks()
     help_win.geometry(f"300x{root.winfo_height()}+{root.winfo_x()+root.winfo_width()+6}+{root.winfo_y()}")
     hdr = tk.Frame(help_win, bg=T["panel"], pady=8); hdr.pack(fill="x")
-    tk.Label(hdr, text="◆  Syntax Guide", font=("Courier New",11,"bold"),
+    tk.Label(hdr, text="◆  Syntax Guide", font=FONT_HDR,
              bg=T["panel"], fg=T["accent"], padx=14).pack(side="left")
     def _close():
         global help_win
         try: help_win.destroy()
         except: pass
         help_win = None; help_btn.config(text="?  Help")
-    tk.Button(hdr, text="✕", command=_close, font=("Courier New",10,"bold"),
+    tk.Button(hdr, text="✕", command=_close, font=FONT_UI_B,
               bg=T["panel"], fg=T["error"], relief="flat", bd=0, padx=10,
               cursor="hand2", activebackground=T["error"], activeforeground=T["bg"]
               ).pack(side="right", padx=6)
     tk.Frame(help_win, height=1, bg=T["border"]).pack(fill="x")
-    t = scrolledtext.ScrolledText(help_win, font=("Courier New",10),
+    t = scrolledtext.ScrolledText(help_win, font=FONT_CODE_S,
         bg=T["surface2"], fg=T["text_dim"], relief="flat", bd=0,
         padx=14, pady=10, wrap="word", state="normal")
     t.insert("1.0", REFERENCE); t.config(state="disabled"); t.pack(fill="both", expand=True)
@@ -395,9 +403,9 @@ def open_ai_window():
 
     # Header
     hdr = tk.Frame(ai_win, bg=T["panel"], pady=8); hdr.pack(fill="x")
-    tk.Label(hdr, text="✨  AI Execution Simulator", font=("Courier New",11,"bold"),
+    tk.Label(hdr, text="✨  AI Execution Simulator", font=FONT_HDR,
              bg=T["panel"], fg=T["ai_fg"], padx=14).pack(side="left")
-    tk.Label(hdr, text="GPT by OpenAI", font=("Courier New",9),
+    tk.Label(hdr, text="GPT by OpenAI", font=FONT_UI_S,
              bg=T["panel"], fg=T["text_muted"], padx=4).pack(side="left")
 
     def _close():
@@ -406,7 +414,7 @@ def open_ai_window():
         except: pass
         ai_win = None; ai_btn.config(text="✨  AI Sim")
 
-    tk.Button(hdr, text="✕", command=_close, font=("Courier New",10,"bold"),
+    tk.Button(hdr, text="✕", command=_close, font=FONT_UI_B,
               bg=T["panel"], fg=T["error"], relief="flat", bd=0, padx=10,
               cursor="hand2", activebackground=T["error"], activeforeground=T["bg"]
               ).pack(side="right", padx=6)
@@ -415,7 +423,7 @@ def open_ai_window():
     # API key bar
     key_bar = tk.Frame(ai_win, bg=T["surface2"], pady=6); key_bar.pack(fill="x")
     key_var = tk.StringVar(value="✔ API key loaded" if api_key else "No API key set")
-    key_lbl = tk.Label(key_bar, textvariable=key_var, font=("Courier New",9),
+    key_lbl = tk.Label(key_bar, textvariable=key_var, font=FONT_UI_S,
                        bg=T["surface2"], fg=T["success"] if api_key else T["error"], padx=14)
     key_lbl.pack(side="left")
 
@@ -430,16 +438,16 @@ def open_ai_window():
             status("OpenAI API key saved.", T["success"])
 
     tk.Button(key_bar, text="⚙  Set Key", command=_set_key,
-              font=("Courier New",9,"bold"), bg=T["surface2"], fg=T["warning"],
+              font=("Segoe UI",9,"bold"), bg=T["surface2"], fg=T["warning"],
               relief="flat", padx=10, pady=3, cursor="hand2", bd=0,
               activebackground=T["warning"], activeforeground=T["bg"]
               ).pack(side="right", padx=10)
     tk.Frame(ai_win, height=1, bg=T["border"]).pack(fill="x")
 
     # Output
-    tk.Label(ai_win, text="  SIMULATION OUTPUT", font=("Courier New",9,"bold"),
+    tk.Label(ai_win, text="  SIMULATION OUTPUT", font=("Segoe UI",9,"bold"),
              bg=T["panel"], fg=T["text_muted"], anchor="w", pady=4).pack(fill="x")
-    sim = scrolledtext.ScrolledText(ai_win, font=("Courier New",11),
+    sim = scrolledtext.ScrolledText(ai_win, font=FONT_CODE,
         bg=T["surface"], fg=T["text"], relief="flat", bd=0,
         padx=14, pady=10, state="disabled", wrap="word")
     sim.tag_configure("step",    foreground=T["accent"])
@@ -450,9 +458,9 @@ def open_ai_window():
     tk.Frame(ai_win, height=1, bg=T["border"]).pack(fill="x")
 
     # History
-    tk.Label(ai_win, text="  HISTORY", font=("Courier New",9,"bold"),
+    tk.Label(ai_win, text="  HISTORY", font=("Segoe UI",9,"bold"),
              bg=T["panel"], fg=T["text_muted"], anchor="w", pady=4).pack(fill="x")
-    hist = scrolledtext.ScrolledText(ai_win, font=("Courier New",10),
+    hist = scrolledtext.ScrolledText(ai_win, font=FONT_CODE_S,
         bg=T["surface2"], fg=T["text_dim"], relief="flat", bd=0,
         padx=14, pady=6, state="disabled", wrap="word", height=5)
     hist.pack(fill="x")
@@ -461,7 +469,7 @@ def open_ai_window():
     # Run bar
     run_bar = tk.Frame(ai_win, bg=T["panel"], pady=8); run_bar.pack(fill="x")
     spin_var = tk.StringVar()
-    tk.Label(run_bar, textvariable=spin_var, font=("Courier New",10),
+    tk.Label(run_bar, textvariable=spin_var, font=FONT_UI,
              bg=T["panel"], fg=T["warning"], padx=14).pack(side="left")
 
     def _render(text):
@@ -498,7 +506,7 @@ def open_ai_window():
         threading.Thread(target=_work, daemon=True).start()
 
     sim_btn = tk.Button(run_bar, text="✨  Simulate with OpenAI", command=_simulate,
-                        font=("Courier New",10,"bold"), bg=T["surface2"], fg=T["ai_fg"],
+                        font=FONT_UI_B, bg=T["surface2"], fg=T["ai_fg"],
                         relief="flat", padx=14, pady=5, cursor="hand2", bd=0,
                         activebackground=T["ai_fg"], activeforeground=T["bg"])
     sim_btn.pack(side="right", padx=10)
@@ -508,37 +516,46 @@ def open_ai_window():
     ai_win.protocol("WM_DELETE_WINDOW", _close)
 
 # ── Window ────────────────────────────────────────────────────────────────────
+# Enable per-monitor DPI awareness so Tkinter renders crisp on HiDPI displays
+if sys.platform == "win32":
+    try:
+        import ctypes
+        ctypes.windll.shcore.SetProcessDpiAwareness(2)
+    except Exception:
+        try: ctypes.windll.user32.SetProcessDPIAware()
+        except Exception: pass
+
 root = tk.Tk()
 root.title("Obsidian IDE  —  untitled.obs")
 root.configure(bg=T["bg"]); root.geometry("960x700"); root.minsize(700, 500)
 
 bar = tk.Frame(root, bg=T["panel"], pady=6); bar.pack(fill="x")
-tk.Label(bar, text="◆ OBSIDIAN", font=("Courier New",11,"bold"),
+tk.Label(bar, text="◆ OBSIDIAN", font=FONT_HDR,
          bg=T["panel"], fg=T["accent"], padx=14).pack(side="left")
 bar_inner = tk.Frame(bar, bg=T["panel"]); bar_inner.pack(side="right", padx=8)
 
 editor = Editor(root); editor.pack(fill="both", expand=True)
 
 out_frame = tk.Frame(root, bg=T["border"], pady=1); out_frame.pack(fill="x")
-out_hdr = tk.Label(out_frame, text="  OUTPUT", font=("Courier New",9,"bold"),
+out_hdr = tk.Label(out_frame, text="  OUTPUT", font=("Segoe UI",9,"bold"),
                    bg=T["panel"], fg=T["text_muted"], padx=4, pady=4, anchor="w")
 out_hdr.pack(fill="x")
-output = scrolledtext.ScrolledText(root, height=8, font=("Courier New",12),
+output = scrolledtext.ScrolledText(root, height=8, font=FONT_CODE,
     bg=T["surface"], fg=T["success"], relief="flat", bd=0, padx=14, pady=8, state="disabled")
 output.tag_configure("error", foreground=T["error"])
 output.tag_configure("info",  foreground=T["info"])
 output.pack(fill="x")
 
 status_bar = tk.Frame(root, bg=T["status_bg"], pady=3); status_bar.pack(fill="x", side="bottom")
-status_lbl = tk.Label(status_bar, text="  Ready.", font=("Courier New",9),
+status_lbl = tk.Label(status_bar, text="  Ready.", font=FONT_UI_S,
                       bg=T["status_bg"], fg=T["status_fg"], anchor="w")
 status_lbl.pack(side="left")
-hint_lbl = tk.Label(status_bar, font=("Courier New",9), anchor="e",
+hint_lbl = tk.Label(status_bar, font=FONT_UI_S, anchor="e",
                     text="Ctrl+Enter Run  •  Ctrl+G AI  •  Ctrl+S Save  •  Ctrl+O Open   ",
                     bg=T["status_bg"], fg=T["text_muted"])
 hint_lbl.pack(side="right")
 
-FBTN = ("Courier New", 10, "bold")
+FBTN = FONT_UI_B
 def _btn(text, cmd): 
     b = tk.Button(bar_inner, text=text, command=cmd, font=FBTN, bg=T["surface2"],
                   relief="flat", padx=12, pady=5, cursor="hand2", bd=0)
