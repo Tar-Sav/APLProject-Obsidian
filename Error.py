@@ -1,3 +1,5 @@
+#Briana Palmer -2200260, Giovaunni Sewell – 2207365, Tarik Savage – 2105093, Dominic Williams - 2105358
+
 class Error:
     def __init__(self, errorName, errorDetail):
         self.errorName = errorName
