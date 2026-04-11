@@ -1,3 +1,5 @@
+#Briana Palmer -2200260, Giovaunni Sewell – 2207365, Tarik Savage – 2105093, Dominic Williams - 2105358
+
 from SymbolTable import SymbolTable
 from Error import SemanticError
 import Obsidian_Parser as _P
