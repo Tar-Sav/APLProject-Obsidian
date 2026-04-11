@@ -1,3 +1,5 @@
+#Briana Palmer -2200260, Giovaunni Sewell – 2207365, Tarik Savage – 2105093, Dominic Williams - 2105358
+
 import tkinter as tk
 from tkinter import scrolledtext, filedialog, messagebox, simpledialog
 import re, os, sys, threading, datetime, configparser
