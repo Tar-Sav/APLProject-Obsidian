@@ -1,3 +1,5 @@
+#Briana Palmer -2200260, Giovaunni Sewell – 2207365, Tarik Savage – 2105093, Dominic Williams - 2105358
+
 class SymbolTable:
     def __init__(self, parent=None):
         self.parent = parent
